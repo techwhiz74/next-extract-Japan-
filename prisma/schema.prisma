@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id              String         @id @default(cuid())
+  createdAt       DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+  name            String         @default("")
+  url             String         @unique
+  contactFormUrl  String         @default("") @map("contact_form_url")
+  title           String         @default("")
+  metaDescription String         @default("") @map("meta_description")
+  lastCrawledAt   DateTime?      @map("last_crawled_at") @db.Timestamptz(3)
+  memo            String         @default("")
+  zip             String         @default("")
+  prefecture      String         @default("")
+  address         String         @default("")
+  incorporatedAt  DateTime?      @map("incorporated_at") @db.Timestamptz(3)
+  houjinBangou    String         @default("") @map("houjin_bangou")
+  listingStatus   String         @default("") @map("listing_status")
+  capital         String         @default("")
+  revenue         String         @default("")
+  employeeNumber  String         @default("") @map("employee_number")
+  tel             String         @default("")
+  emails          Email[]
+  salesNow        SalesNow?
+  zenkokuHoujin   ZenkokuHoujin?
+
+  @@index([contactFormUrl])
+  @@index([houjinBangou])
+}
+
+model Email {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  email     String   @unique
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId String   @map("company_id")
+
+  @@index([companyId])
+}
+
+model SalesNow {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  industry    String   @default("")
+  subIndustry String   @default("") @map("sub_industry")
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId   String   @unique @map("company_id")
+
+  @@index([companyId])
+}
+
+model ZenkokuHoujin {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  industry  String   @default("")
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId String   @unique @map("company_id")
+
+  @@index([companyId])
+}
